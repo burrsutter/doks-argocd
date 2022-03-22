@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: quarkus-demo
+  name: myapp
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: quarkus-demo
+      app: myapp
   template:
     metadata:
       labels:
-        app: quarkus-demo
+        app: myapp
         env: dev
     spec:
       containers:
