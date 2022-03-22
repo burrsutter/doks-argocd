@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: quarkus-demo-deployment
+  name: quarkus-demo
 spec:
   replicas: 2
   selector:

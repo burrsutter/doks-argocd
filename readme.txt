@@ -105,12 +105,21 @@ argocd cluster list
 https://www.screencast.com/t/UXPfHbnOKHG
 
 # Deploy an app
-argocd app create helm-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path helm-guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
-argocd app sync helm-guestbook
-argocd app delete helm-guestbook
+argocd app create quarkus-demo --repo https://github.com/burrsutter/doks-argocd.git --path mystuff --dest-server https://kubernetes.default.svc --dest-namespace mystuff
+argocd app sync quarkus-demo
+
+MYIP=$(kubectl -n mystuff get service quarkus-demo -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
+
+while true
+do curl $MYIP
+sleep .3
+done
+
+# Clean up App
+argocd app delete quarkus-demo
 
 
-
+# Clean up all clusters
 doctl k8s cluster delete ams3-kubernetes
 doctl k8s cluster delete blr1-kubernetes
 doctl k8s cluster delete tor1-kubernetes
