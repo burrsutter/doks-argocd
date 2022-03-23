@@ -14,8 +14,8 @@ spec:
         env: dev
     spec:
       containers:
-      - name: quarkus-demo
-        image: quay.io/rhdevelopers/quarkus-demo:v1
+      - name: myapp
+        image: quay.io/rhdevelopers/myboot:v1
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
