@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: myapp
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          env: myapptarget
+  template:
+    metadata:
+      name: '{{clusterName}}-myapp'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: https://github.com/burrsutter/doks-argocd.git
+        targetRevision: main
+        path: mystuff/{{cluster}}
+      destination:
+        server: '{{url}}'
+        namespace: mystuff
