@@ -168,10 +168,15 @@ debugging
 
 kubectl describe applicationset myapp
 
+argocd app list
 
+----
+NAME                           CLUSTER                                                              NAMESPACE  PROJECT  STATUS  HEALTH   SYNCPOLICY  CONDITIONS  REPO                                           PATH      TARGET
+do-blr1-blr1-kubernetes-myapp  https://a5eab264-8c96-40f0-85a9-3a3ff0a1bd2c.k8s.ondigitalocean.com  mystuff    default  Synced  Healthy  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/  main
+do-tor1-tor1-kubernetes-myapp  https://7acb3943-e28b-421c-ae93-ba7bad6c043b.k8s.ondigitalocean.com  mystuff    default  Synced  Healthy  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/  main
+----
 
-
-
+https://www.screencast.com/t/azp4YoUIm9
 
 
 

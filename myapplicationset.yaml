@@ -10,7 +10,7 @@ spec:
           env: myapptarget
   template:
     metadata:
-      name: '{{clusterName}}-myapp'
+      name: '{{name}}-myapp'
     spec:
       project: default
       syncPolicy:
@@ -20,7 +20,7 @@ spec:
       source:
         repoURL: https://github.com/burrsutter/doks-argocd.git
         targetRevision: main
-        path: mystuff/{{cluster}}
+        path: mystuff/
       destination:
-        server: '{{url}}'
+        server: '{{server}}'
         namespace: mystuff
