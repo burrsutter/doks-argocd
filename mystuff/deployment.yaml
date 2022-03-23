@@ -19,6 +19,9 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+        env:
+        - name: GREETING
+          value: Jambo
         resources:
           requests:
             memory: "300Mi"
