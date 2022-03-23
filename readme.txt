@@ -104,22 +104,83 @@ argocd cluster list
 
 https://www.screencast.com/t/UXPfHbnOKHG
 
-# Deploy an app
+# each imported cluster has a secret
+kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=cluster
+
+
+# Deploy an app to the hub cluster
 argocd app create quarkus-demo --repo https://github.com/burrsutter/doks-argocd.git --path mystuff --dest-server https://kubernetes.default.svc --dest-namespace mystuff
 argocd app sync quarkus-demo
 
-MYIP=$(kubectl -n mystuff get service quarkus-demo -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
+MYIP=$(kubectl -n mystuff get service myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
 
 while true
 do curl $MYIP
 sleep .3
 done
 
+# Make a change and make it sync
+# git commit 
+# git push
+
+argocd app sync quarkus-demo --prune
+
 # Clean up App
 argocd app delete quarkus-demo
 
+# Create an ApplicationSet for N clusters
+----
+argocd app list
+----
 
-# Clean up all clusters
+there should be no Apps 
+
+----
+NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
+----
+
+
+kubectl apply -f myapplicationset.yaml
+
+argocd app list
+
+Still there should be no Apps, Apps are "generated" later
+
+----
+NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
+----
+
+https://www.screencast.com/t/D0sy7fZ1nx2G
+
+
+Remember
+----
+kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=cluster
+----
+
+kubectl label secret env=myapptarget -n argocd -l argocd.argoproj.io/secret-type=cluster
+
+kubectl get secrets  -l env=myapptarget -n argocd
+
+and magic?
+
+debugging
+
+kubectl describe applicationset myapp
+
+
+
+
+
+
+
+
+# Remove all clusters, save some money
 doctl k8s cluster delete ams3-kubernetes
 doctl k8s cluster delete blr1-kubernetes
 doctl k8s cluster delete tor1-kubernetes
+
+
+
+https://stackoverflow.com/questions/66114851/kubectl-wait-for-service-to-get-external-ip
+
