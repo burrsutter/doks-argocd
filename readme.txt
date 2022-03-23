@@ -179,6 +179,23 @@ do-tor1-tor1-kubernetes-myapp  https://7acb3943-e28b-421c-ae93-ba7bad6c043b.k8s.
 https://www.screencast.com/t/azp4YoUIm9
 
 
+# On each spokem wait for the external IP address
+
+MYIP=$(kubectl -n mystuff get service myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
+
+while true
+do curl $MYIP
+sleep .3
+done
+
+https://www.screencast.com/t/Lpri31eqto0
+
+
+Edit deployment.yaml and change replicas 
+git commit -am "changed replicas"
+git push
+
+
 
 # Remove all clusters, save some money
 doctl k8s cluster delete ams3-kubernetes
