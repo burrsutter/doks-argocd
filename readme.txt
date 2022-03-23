@@ -195,6 +195,10 @@ Edit deployment.yaml and change replicas
 git commit -am "changed replicas"
 git push
 
+Refresh Hard
+
+https://www.screencast.com/t/SafMsOr6POiS
+
 
 
 # Remove all clusters, save some money
