@@ -208,13 +208,18 @@ git push
 
 Refresh Hard
 
-https://www.screencast.com/t/SafMsOr6POiS
+https://www.screencast.com/t/K70EUeKbIsc
 
 
 # Remove all clusters, save some money
 doctl k8s cluster delete ams3-kubernetes
 doctl k8s cluster delete blr1-kubernetes
 doctl k8s cluster delete tor1-kubernetes
+
+# Remove all load-balancers, those seem to hang around even when clusters are deleted
+doctl compute load-balancer list
+doctl compute load-balancer delete 1069dd38-35e8-4f6a-a968-408ff86b78c6
+
 
 
 ToDo:
