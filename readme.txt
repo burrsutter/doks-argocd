@@ -55,6 +55,8 @@ kubectl apply -f mystuff/service.yaml
 
 kubectl get service quarkus-demo -o json
 
+# wait for external IP
+
 IP=$(kubectl get service quarkus-demo -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
 
 echo $IP
@@ -109,8 +111,13 @@ kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=cluster
 
 
 # Deploy an app to the hub cluster
-argocd app create quarkus-demo --repo https://github.com/burrsutter/doks-argocd.git --path mystuff --dest-server https://kubernetes.default.svc --dest-namespace mystuff
-argocd app sync quarkus-demo
+argocd app create myapp-demo --repo https://github.com/burrsutter/doks-argocd.git --path mystuff/base --dest-server https://kubernetes.default.svc --dest-namespace mystuff
+argocd app sync myapp-demo
+
+# wait for the external IP
+watch kubectl get services -n mystuff
+
+
 
 MYIP=$(kubectl -n mystuff get service myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
 
@@ -123,21 +130,22 @@ done
 # git commit 
 # git push
 
-argocd app sync quarkus-demo --prune
+argocd app sync myapp-demo --prune
 
 # Clean up App
-argocd app delete quarkus-demo
+argocd app delete myapp-demo
 
-# Create an ApplicationSet for N clusters
-----
+wait for it to disappear
+
 argocd app list
-----
 
 there should be no Apps 
 
 ----
 NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
 ----
+
+# Create an ApplicationSet for N clusters
 
 
 kubectl apply -f myapplicationset.yaml
@@ -178,8 +186,9 @@ do-tor1-tor1-kubernetes-myapp  https://7acb3943-e28b-421c-ae93-ba7bad6c043b.k8s.
 
 https://www.screencast.com/t/azp4YoUIm9
 
+https://www.screencast.com/t/ydjHSrnso
 
-# On each spokem wait for the external IP address
+# On each spoke wait for the external IP address
 
 MYIP=$(kubectl -n mystuff get service myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
 
@@ -188,11 +197,13 @@ do curl $MYIP
 sleep .3
 done
 
-https://www.screencast.com/t/Lpri31eqto0
+https://www.screencast.com/t/33u84oECe
 
+To see a rollout, edit overlays/toronto/deployment.yaml
 
-Edit deployment.yaml and change replicas 
-git commit -am "changed replicas"
+Change the env var from "Hi" to "Bonjour"
+
+git commit -am "Toronto greeting"
 git push
 
 Refresh Hard
@@ -206,6 +217,6 @@ doctl k8s cluster delete blr1-kubernetes
 doctl k8s cluster delete tor1-kubernetes
 
 
-
+ToDo:
 https://stackoverflow.com/questions/66114851/kubectl-wait-for-service-to-get-external-ip
 
