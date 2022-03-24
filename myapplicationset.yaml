@@ -20,7 +20,7 @@ spec:
       source:
         repoURL: https://github.com/burrsutter/doks-argocd.git
         targetRevision: main
-        path: mystuff/
+        path: 'mystuff/overlays/{{name}}'
       destination:
         server: '{{server}}'
         namespace: mystuff

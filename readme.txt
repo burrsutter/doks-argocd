@@ -27,8 +27,8 @@ export KUBE_EDITOR="code -w"
 export PATH=~/devnation/bin:$PATH
 
 doctl kubernetes cluster create ams3-kubernetes --region ams3 --node-pool="name=worker-pool;count=3"
-doctl kubernetes cluster create blr1-kubernetes --region blr1 --node-pool="name=worker-pool;count=3"
-doctl kubernetes cluster create tor1-kubernetes --region tor1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create blr1-kubernetes --region blr1 --node-pool="name=worker-pool;count=2"
+doctl kubernetes cluster create tor1-kubernetes --region tor1 --node-pool="name=worker-pool;count=2"
 
 doctl kubernetes cluster list
 
@@ -43,7 +43,7 @@ kubectl cluster-info
 
 kubectl get nodes
 
-# Test App
+# perhaps a test App on the clusters to see if things are behaving normally
 
 kubectl apply -f mystuff/namespace.yaml
 
@@ -79,7 +79,7 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}
 ARGOCD_PASS=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 # really should change the default password
 
-ARGOCD_IP=$(kubectl get service argocd-server -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):80
+ARGOCD_IP=$(kubectl -n argocd get service argocd-server -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):80
 
 echo $ARGOCD_IP
 
@@ -94,11 +94,11 @@ argocd login --insecure --grpc-web $ARGOCD_IP  --username admin --password $ARGO
 
 # Spoke 1
 kubectl config get-contexts -o name
-argocd cluster add --kubeconfig $KUBECONFIG do-blr1-blr1-kubernetes
+argocd cluster add --kubeconfig $KUBECONFIG do-blr1-blr1-kubernetes --name bangalore
 
 # Spoke 2
 kubectl config get-contexts -o name
-argocd cluster add --kubeconfig $KUBECONFIG do-tor1-tor1-kubernetes
+argocd cluster add --kubeconfig $KUBECONFIG do-tor1-tor1-kubernetes --name toronto
 
 argocd cluster list
 
@@ -198,7 +198,6 @@ git push
 Refresh Hard
 
 https://www.screencast.com/t/SafMsOr6POiS
-
 
 
 # Remove all clusters, save some money
