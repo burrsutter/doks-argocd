@@ -4,6 +4,10 @@ This example uses ArgoCD ApplicationSet in a hub & spoke architecture. A central
 
 The 3 clusters are Digital Ocean Kubernetes Service (DOKS) but any Kubernetes cluster should work well.  Amsterdam is my central hub while Toronto and Bangalore serve as spoke clusters.  ArgoCD ApplicationSet allows you to sync your app to all 3 clusters.
 
+Video of ArgoCD ApplicationSet in action
+
+https://youtu.be/RvE85FknYMc
+
 === 3 DOKS clusters
 
 Using the doctl CLI
@@ -543,6 +547,7 @@ Remove all load-balancers, those seem to hang around even when clusters are dele
 doctl compute load-balancer list
 doctl compute load-balancer delete 1069dd38-35e8-4f6a-a968-408ff86b78c6
 ----
+
 
 ToDo - work on a bash shell script to wait for external IP to populate
 https://stackoverflow.com/questions/66114851/kubectl-wait-for-service-to-get-external-ip
