@@ -1,10 +1,10 @@
 == ArgoCD ApplicationSet
 
-This example uses ArgoCD ApplicationSet in a hub & spoke architecture. A central cluster that "pushes" changes out to spoke clusters.
-The 3 clusters involved come from Digital Ocean Kubernetes Service (DOKS)
+This example uses ArgoCD ApplicationSet in a hub & spoke architecture. A central cluster that "pushes" changes out to spoke clusters.   This is a bit more advanced than the typical ArgoCD tutorial, I recommend working through some of the more basic examples before tackling this more advanced scenario
 
+The 3 clusters are Digital Ocean Kubernetes Service (DOKS) but any Kubernetes cluster should work well.  Amsterdam is my central hub while Toronto and Bangalore serve as spoke clusters.  ArgoCD ApplicationSet allows you to sync your app to all 3 clusters.
 
-==== 3 DOKS clusters
+=== 3 DOKS clusters
 
 Using the doctl CLI
 https://docs.digitalocean.com/reference/doctl/how-to/install/
@@ -138,6 +138,7 @@ Kubernetes control plane is running at https://bc514ba0-1aa8-4dfd-8c83-dc5681638
 CoreDNS is running at https://bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 ----
 
+==== A test deployment
 Optional: Deploy a test App on the clusters to see if things are behaving normally
 
 [.console-input]
@@ -182,7 +183,7 @@ kubectl delete namespace mystuff
 ----
 
 
-#### ArgoCD Hub
+=== Deploy ArgoCD Hub
 
 Deploy ArgoCD into a single cluster. I am using the AMS cluster.
 
@@ -305,6 +306,7 @@ cluster-386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com-3865365367  
 cluster-bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com-4271209868   Opaque   3      6m8s
 ----
 
+=== Deploy an Application (not yet ApplicationSet)
 Deploy an Application to the hub cluster.  This is not yet ApplicationSet for multi-cluster
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -313,6 +315,7 @@ argocd app create myapp-demo --repo https://github.com/burrsutter/doks-argocd.gi
 argocd app sync myapp-demo
 ----
 
+image::./images/argocd-2.png[][Console Applications]
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -327,7 +330,10 @@ NAME    TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)          AGE
 myapp   LoadBalancer   10.245.114.187   161.35.246.253   8080:32185/TCP   3m20s
 ----
 
+curl your app
 
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
 ----
 MYIP=$(kubectl -n mystuff get service myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
 
@@ -335,37 +341,60 @@ while true
 do curl $MYIP
 sleep .3
 done
+----
 
-# Make a change and make it sync
-# git commit 
-# git push
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
+----
+Aloha from Quarkus! 1 on myapp-76c5cfff4b-2wqg8
+Aloha from Quarkus! 2 on myapp-76c5cfff4b-2wqg8
+Aloha from Quarkus! 3 on myapp-76c5cfff4b-2wqg8
+----
 
+Make a change to base/deployment.yaml and make it sync
+----
+git commit -am "updated something"
+git push
 argocd app sync myapp-demo --prune
 ----
 
-# Clean up App
+Clean up App
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
 argocd app delete myapp-demo
+----
 
 wait for it to disappear
 
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
 argocd app list
+----
 
 there should be no Apps 
 
+[.console-output]
+[source,bash,subs="+macros,+attributes"]
 ----
 NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
 ----
 
-# Create an ApplicationSet for N clusters
 
+Create an ApplicationSet for N clusters
 
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
 kubectl apply -f myapplicationset.yaml
-
-argocd app list
+----
 
 Still there should be no Apps, Apps are "generated" later
-
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
 ----
+argocd app list
 NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
 ----
 
