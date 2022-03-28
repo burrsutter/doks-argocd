@@ -1,3 +1,9 @@
+
+This example uses ArgoCD ApplicationSet in a hub & spoke architecture. A central cluster that "pushes" changes out to spoke clusters.
+The 3 clusters involved come from Digital Ocean Kubernetes Service (DOKS)
+
+
+
 https://docs.digitalocean.com/reference/doctl/how-to/install/
 
 https://docs.digitalocean.com/products/kubernetes/how-to/connect-to-cluster/
