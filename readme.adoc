@@ -358,6 +358,18 @@ git push
 argocd app sync myapp-demo --prune
 ----
 
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+while true
+do curl $MYIP
+sleep .3
+done
+
+AlohaX from Quarkus! 1 on myapp-5c8f597d8-j2m6c
+AlohaX from Quarkus! 2 on myapp-5c8f597d8-j2m6c
+----
+
 Clean up App
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
@@ -365,16 +377,13 @@ Clean up App
 argocd app delete myapp-demo
 ----
 
-wait for it to disappear
+wait for it to disappear, there should be no Apps 
 
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
 argocd app list
 ----
-
-there should be no Apps 
-
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -387,7 +396,13 @@ Create an ApplicationSet for N clusters
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-kubectl apply -f myapplicationset.yaml
+kubectl apply -f myapplicationset.yaml -n argocd
+----
+
+----
+kubectl get applicationset -n argocd
+NAME    AGE
+myapp   5s
 ----
 
 Still there should be no Apps, Apps are "generated" later
@@ -395,73 +410,138 @@ Still there should be no Apps, Apps are "generated" later
 [source,bash,subs="+macros,+attributes"]
 ----
 argocd app list
-NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
+NAME             CLUSTER                                                              NAMESPACE  PROJECT  STATUS  HEALTH       SYNCPOLICY  CONDITIONS  REPO                                           PATH                        TARGET
+amsterdam-myapp  https://bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/amsterdam  main
+bangalore-myapp  https://19075b0c-f790-4c67-97cc-315765860d43.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/bangalore  main
+toronto-myapp    https://386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/toronto    main
 ----
-
-https://www.screencast.com/t/D0sy7fZ1nx2G
 
 
 Remember
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
 ----
 kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=cluster
 ----
 
+Add the correct magic label
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+-----
 kubectl label secret env=myapptarget -n argocd -l argocd.argoproj.io/secret-type=cluster
+-----
 
+This magic label comes from the file myapplicationset.yaml
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          env: myapptarget
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
 kubectl get secrets  -l env=myapptarget -n argocd
+----
 
-and magic?
 
-debugging
+The other bit of magic is that the overlay names match the cluster names
 
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+├── mystuff
+│   ├── base
+│   │   ├── deployment.yaml
+│   │   ├── kustomization.yaml
+│   │   ├── namespace.yaml
+│   │   └── service.yaml
+│   └── overlays
+│       ├── amsterdam
+│       │   ├── deployment.yaml
+│       │   └── kustomization.yaml
+│       ├── bangalore
+│       │   ├── deployment.yaml
+│       │   └── kustomization.yaml
+│       └── toronto
+│           ├── deployment.yaml
+│           └── kustomization.yaml
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
+argocd cluster list
+SERVER                                                               NAME        VERSION  STATUS      MESSAGE                                              PROJECT
+https://bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com  amsterdam            Unknown     Cluster has no application and not being monitored.
+https://386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com  toronto              Unknown     Cluster has no application and not being monitored.
+https://19075b0c-f790-4c67-97cc-315765860d43.k8s.ondigitalocean.com  bangalore            Unknown     Cluster has no application and not being monitored.
+https://kubernetes.default.svc                                       in-cluster  1.22     Successful
+----
+
+[.console-input]
+[source,bash,subs="+macros,+attributes"]
+----
 kubectl describe applicationset myapp
+----
 
+----
 argocd app list
-
+NAME             CLUSTER                                                              NAMESPACE  PROJECT  STATUS  HEALTH       SYNCPOLICY  CONDITIONS  REPO                                           PATH                        TARGET
+amsterdam-myapp  https://bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/amsterdam  main
+bangalore-myapp  https://19075b0c-f790-4c67-97cc-315765860d43.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/bangalore  main
+toronto-myapp    https://386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/toronto    main
 ----
-NAME                           CLUSTER                                                              NAMESPACE  PROJECT  STATUS  HEALTH   SYNCPOLICY  CONDITIONS  REPO                                           PATH      TARGET
-do-blr1-blr1-kubernetes-myapp  https://a5eab264-8c96-40f0-85a9-3a3ff0a1bd2c.k8s.ondigitalocean.com  mystuff    default  Synced  Healthy  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/  main
-do-tor1-tor1-kubernetes-myapp  https://7acb3943-e28b-421c-ae93-ba7bad6c043b.k8s.ondigitalocean.com  mystuff    default  Synced  Healthy  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/  main
+
+image::./images/argocd-4.png[][3 Apps]
+
+
+On each cluster wait for the external IP address
 ----
-
-https://www.screencast.com/t/azp4YoUIm9
-
-https://www.screencast.com/t/ydjHSrnso
-
-# On each spoke wait for the external IP address
-
 MYIP=$(kubectl -n mystuff get service myapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}"):8080
 
 while true
 do curl $MYIP
 sleep .3
 done
+----
 
-https://www.screencast.com/t/33u84oECe
+image::./images/argocd-5.png[][iTerm2 3 clusters] 
 
-To see a rollout, edit overlays/toronto/deployment.yaml
+=== Rollout an update
 
-Change the env var from "Hi" to "Bonjour"
+To see a rollout, edit overlays/toronto/deployment.yaml, switch between "Hi" and "Bonjour"
 
-git commit -am "Toronto greeting"
-git push
+You can wait for the 3 minute default polling interval
+OR you can configure a webhook
+OR you can just Refresh Hard
 
-Refresh Hard
-
-https://www.screencast.com/t/K70EUeKbIsc
+image::./images/argocd-6.png[][Refresh Hard]
 
 
-# Remove all clusters, save some money
+=== Clean Up
+
+Remove all clusters, save some money
+----
 doctl k8s cluster delete ams3-kubernetes
 doctl k8s cluster delete blr1-kubernetes
 doctl k8s cluster delete tor1-kubernetes
+----
 
-# Remove all load-balancers, those seem to hang around even when clusters are deleted
+Remove all load-balancers, those seem to hang around even when clusters are deleted
+----
 doctl compute load-balancer list
 doctl compute load-balancer delete 1069dd38-35e8-4f6a-a968-408ff86b78c6
+----
 
-
-
-ToDo:
+ToDo - work on a bash shell script to wait for external IP to populate
 https://stackoverflow.com/questions/66114851/kubectl-wait-for-service-to-get-external-ip
 
