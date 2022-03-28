@@ -527,6 +527,8 @@ OR you can just Refresh Hard
 image::./images/argocd-6.png[][Refresh Hard]
 
 
+image::./images/argocd-7.png[][Rollout]
+
 === Clean Up
 
 Remove all clusters, save some money
