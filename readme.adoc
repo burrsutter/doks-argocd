@@ -49,10 +49,17 @@ Create a place for the 3 KUBECONFIGs.  I like keeping my clusters separated via 
 ----
 mkdir .kube
 
-export KUBECONFIG=~/devnation/doks/.kube/config-ams3
-export KUBECONFIG=~/devnation/doks/.kube/config-blr1
-export KUBECONFIG=~/devnation/doks/.kube/config-tor1
+export KUBECONFIG=~/devnation/doks-argocd/.kube/config-ams3
 ----
+
+----
+export KUBECONFIG=~/devnation/doks-argocd/.kube/config-blr1
+----
+
+----
+export KUBECONFIG=~/devnation/doks-argocd/.kube/config-tor1
+----
+
 
 Other important env vars to configure, making sure kubectl and argocd are in the PATH
 
@@ -79,7 +86,7 @@ The result of an individual cluster creation
 Notice: Cluster is provisioning, waiting for cluster to be running
 ...............................................................................
 Notice: Cluster created, fetching credentials
-Notice: Adding cluster credentials to kubeconfig file found in "/Users/burr/devnation/doks/.kube/config-ams3"
+Notice: Adding cluster credentials to kubeconfig file found in "/Users/burr/devnation/doks-argocd/.kube/config-ams3"
 Notice: Setting current-context to do-ams3-ams3-kubernetes
 ----
 
@@ -105,7 +112,13 @@ Overlay the per cluster $KUBECONFIG files
 
 ----
 doctl k8s cluster kubeconfig show ams3-kubernetes >> $KUBECONFIG
+----
+
+----
 doctl k8s cluster kubeconfig show blr1-kubernetes >> $KUBECONFIG
+----
+
+----
 doctl k8s cluster kubeconfig show tor1-kubernetes >> $KUBECONFIG
 ----
 
