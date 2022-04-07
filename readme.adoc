@@ -401,6 +401,7 @@ wait for it to disappear, there should be no Apps
 ----
 argocd app list
 ----
+
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -423,14 +424,12 @@ myapp   5s
 ----
 
 Still there should be no Apps, Apps are "generated" later
+
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
 argocd app list
-NAME             CLUSTER                                                              NAMESPACE  PROJECT  STATUS  HEALTH       SYNCPOLICY  CONDITIONS  REPO                                           PATH                        TARGET
-amsterdam-myapp  https://bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/amsterdam  main
-bangalore-myapp  https://19075b0c-f790-4c67-97cc-315765860d43.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/bangalore  main
-toronto-myapp    https://386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com  mystuff    default  Synced  Progressing  Auto-Prune  <none>      https://github.com/burrsutter/doks-argocd.git  mystuff/overlays/toronto    main
+NAME  CLUSTER  NAMESPACE  PROJECT  STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO  PATH  TARGET
 ----
 
 

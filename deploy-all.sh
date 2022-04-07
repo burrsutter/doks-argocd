@@ -1,0 +1,1 @@
+kubectl label secret env=myapptarget -n argocd -l argocd.argoproj.io/secret-type=cluster
