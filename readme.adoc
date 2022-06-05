@@ -48,18 +48,23 @@ Create a place for the 3 KUBECONFIGs.  I like keeping my clusters separated via 
 [source,bash,subs="+macros,+attributes"]
 ----
 mkdir .kube
-
-export KUBECONFIG=~/devnation/doks-argocd/.kube/config-ams3
 ----
 
 ----
-export KUBECONFIG=~/devnation/doks-argocd/.kube/config-blr1
+export KUBECONFIG=~/xKS/doks-argocd/.kube/config-amsterdam
 ----
 
 ----
-export KUBECONFIG=~/devnation/doks-argocd/.kube/config-tor1
+export KUBECONFIG=~/xKS/doks-argocd/.kube/config-bengaluru
 ----
 
+----
+export KUBECONFIG=~/xKS/doks-argocd/.kube/config-toronto
+----
+
+----
+export KUBECONFIG=~/xKS/doks-argocd/.kube/config-newyork
+----
 
 Other important env vars to configure, making sure kubectl and argocd are in the PATH
 
@@ -74,9 +79,19 @@ Create the clusters, I do this in 3 different terminal sessions, to keep the env
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----
-doctl kubernetes cluster create ams3-kubernetes --region ams3 --node-pool="name=worker-pool;count=3"
-doctl kubernetes cluster create blr1-kubernetes --region blr1 --node-pool="name=worker-pool;count=2"
-doctl kubernetes cluster create tor1-kubernetes --region tor1 --node-pool="name=worker-pool;count=2"
+doctl kubernetes cluster create amsterdam --region ams3 --node-pool="name=worker-pool;count=3"
+----
+
+----
+doctl kubernetes cluster create bengaluru --region blr1 --node-pool="name=worker-pool;count=3"
+----
+
+----
+doctl kubernetes cluster create toronto --region tor1 --node-pool="name=worker-pool;count=3"
+----
+
+----
+doctl kubernetes cluster create newyork --region nyc1 --node-pool="name=worker-pool;count=3"
 ----
 
 The result of an individual cluster creation
@@ -86,7 +101,7 @@ The result of an individual cluster creation
 Notice: Cluster is provisioning, waiting for cluster to be running
 ...............................................................................
 Notice: Cluster created, fetching credentials
-Notice: Adding cluster credentials to kubeconfig file found in "/Users/burr/devnation/doks-argocd/.kube/config-ams3"
+Notice: Adding cluster credentials to kubeconfig file found in "/Users/burr/xKS/doks-argocd/.kube/config-amsterdam"
 Notice: Setting current-context to do-ams3-ams3-kubernetes
 ----
 
@@ -101,9 +116,9 @@ doctl kubernetes cluster list
 [source,bash,subs="+macros,+attributes"]
 ----
 ID                                      Name               Region    Version        Auto Upgrade    Status     Node Pools
-386abcb0-61f4-4a75-9b69-2a6587ad30b3    tor1-kubernetes    tor1      1.22.7-do.0    false           running    worker-pool
-19075b0c-f790-4c67-97cc-315765860d43    blr1-kubernetes    blr1      1.22.7-do.0    false           running    worker-pool
-bc514ba0-1aa8-4dfd-8c83-dc568163865f    ams3-kubernetes    ams3      1.22.7-do.0    false           running    worker-pool
+386abcb0-61f4-4a75-9b69-2a6587ad30b3    toronto    tor1      1.22.7-do.0    false           running    worker-pool
+19075b0c-f790-4c67-97cc-315765860d43    bengaluru    blr1      1.22.7-do.0    false           running    worker-pool
+bc514ba0-1aa8-4dfd-8c83-dc568163865f    amsterdam    ams3      1.22.7-do.0    false           running    worker-pool
 ----
 
 Overlay the per cluster $KUBECONFIG files
@@ -111,20 +126,20 @@ Overlay the per cluster $KUBECONFIG files
 [source,bash,subs="+macros,+attributes"]
 
 ----
-doctl k8s cluster kubeconfig show ams3-kubernetes >> $KUBECONFIG
+doctl k8s cluster kubeconfig show amsterdam >> $KUBECONFIG
 ----
 
 ----
-doctl k8s cluster kubeconfig show blr1-kubernetes >> $KUBECONFIG
+doctl k8s cluster kubeconfig show bengaluru >> $KUBECONFIG
 ----
 
 ----
-doctl k8s cluster kubeconfig show tor1-kubernetes >> $KUBECONFIG
+doctl k8s cluster kubeconfig show toronto >> $KUBECONFIG
 ----
 
 Note: doctl does offer an append to KUBECONFIG if you wish
 ----
-doctl kubernetes cluster kubeconfig save tor1-kubernetes
+doctl kubernetes cluster kubeconfig save toronto
 ----
 
 Check all 3 clusters
@@ -266,7 +281,7 @@ Add the Hub cluster to ArgoCD
 [source,bash,subs="+macros,+attributes"]
 ----
 kubectl config get-contexts -o name
-argocd cluster add --kubeconfig $KUBECONFIG do-ams3-ams3-kubernetes --name amsterdam
+argocd cluster add --kubeconfig $KUBECONFIG do-ams3-amsterdam --name amsterdam
 ----
 
 
@@ -275,7 +290,7 @@ Using the correct terminal, the correct $KUBECONFIG, add Spoke 1
 [source,bash,subs="+macros,+attributes"]
 ----
 kubectl config get-contexts -o name
-argocd cluster add --kubeconfig $KUBECONFIG do-blr1-blr1-kubernetes --name bangalore
+argocd cluster add --kubeconfig $KUBECONFIG do-blr1-bengaluru --name bangalore
 ----
 
 Using the correct terminal, the correct $KUBECONFIG, add Spoke 2
@@ -283,7 +298,7 @@ Using the correct terminal, the correct $KUBECONFIG, add Spoke 2
 [source,bash,subs="+macros,+attributes"]
 ----
 kubectl config get-contexts -o name
-argocd cluster add --kubeconfig $KUBECONFIG do-tor1-tor1-kubernetes --name toronto
+argocd cluster add --kubeconfig $KUBECONFIG do-tor1-toronto --name toronto
 ----
 
 
@@ -298,7 +313,7 @@ argocd cluster list
 [source,bash,subs="+macros,+attributes"]
 ----
 SERVER                                                               NAME        VERSION  STATUS   MESSAGE                                              PROJECT
-https://19075b0c-f790-4c67-97cc-315765860d43.k8s.ondigitalocean.com  bangalore            Unknown  Cluster has no application and not being monitored.
+https://19075b0c-f790-4c67-97cc-315765860d43.k8s.ondigitalocean.com  bengaluru            Unknown  Cluster has no application and not being monitored.
 https://386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com  toronto              Unknown  Cluster has no application and not being monitored.
 https://bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com  amsterdam            Unknown  Cluster has no application and not being monitored.
 https://kubernetes.default.svc                                       in-cluster           Unknown  Cluster has no application and not being monitored.
@@ -314,6 +329,13 @@ On the hub cluster, each imported cluster has a secret.  These secrets become im
 kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=cluster
 ----
 
+OR
+
+----
+kubectl get secrets -n openshift-gitops -l argocd.argoproj.io/secret-type=cluster
+----
+
+
 [.console-output]
 [source,bash,subs="+macros,+attributes"]
 ----
@@ -323,8 +345,8 @@ cluster-386abcb0-61f4-4a75-9b69-2a6587ad30b3.k8s.ondigitalocean.com-3865365367  
 cluster-bc514ba0-1aa8-4dfd-8c83-dc568163865f.k8s.ondigitalocean.com-4271209868   Opaque   3      6m8s
 ----
 
-=== Deploy an Application (not yet ApplicationSet)
-Deploy an Application to the hub cluster.  This is not yet ApplicationSet for multi-cluster
+=== Deploy an Application (NOT yet ApplicationSet)
+Deploy an Application to the hub cluster.  This is NOT yet ApplicationSet for multi-cluster
 [.console-input]
 [source,bash,subs="+macros,+attributes"]
 ----

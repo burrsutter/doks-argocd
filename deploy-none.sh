@@ -1,1 +1,1 @@
-kubectl label secret env- -n argocd -l argocd.argoproj.io/secret-type=cluster
+kubectl label secret env- -l argocd.argoproj.io/secret-type=cluster
