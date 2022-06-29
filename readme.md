@@ -109,17 +109,20 @@ Notice: Adding cluster credentials to kubeconfig file found in "/Users/burr/xKS/
 Notice: Setting current-context to do-ams3-amsterdam
 ```
 
-See that you have at least 3 clusters up (HUB could be OCP+Gitops)
+See that you have at least 3 clusters up 
+  
+The Hub could be [OpenShift + Gitops Operator](https://docs.openshift.com/container-platform/4.10/cicd/gitops/understanding-openshift-gitops.html)
 
 ```
 doctl kubernetes cluster list
 ```
 
 ```
-ID                                      Name               Region    Version        Auto Upgrade    Status     Node Pools
-386abcb0-61f4-4a75-9b69-2a6587ad30b3    toronto    tor1      1.22.7-do.0    false           running    worker-pool
-19075b0c-f790-4c67-97cc-315765860d43    bengaluru    blr1      1.22.7-do.0    false           running    worker-pool
-bc514ba0-1aa8-4dfd-8c83-dc568163865f    amsterdam    ams3      1.22.7-do.0    false           running    worker-pool
+ID                                      Name         Region    Version        Auto Upgrade    Status     Node Pools
+d327a00b-43e2-4da3-ba55-64c335480198    toronto      tor1      1.22.8-do.1    false           running    worker-pool
+a8e1d83e-bcfd-4ee7-a166-9d94b7abf75a    newyork      nyc1      1.22.8-do.1    false           running    worker-pool
+953550fa-ef95-4bb6-b6c4-799b50518ec4    bengaluru    blr1      1.22.8-do.1    false           running    worker-pool
+545b45c4-a0e1-4e14-ab74-0ba74bfb7ef5    amsterdam    ams3      1.22.8-do.1    false           running    worker-pool
 ```
 
 If needed, overlay the per cluster $KUBECONFIG files
