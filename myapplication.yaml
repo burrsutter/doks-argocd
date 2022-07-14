@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp-yaml
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io  
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/burrsutter/doks-argocd.git
+    targetRevision: HEAD  
+    path: mystuff/base  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mystuff  
