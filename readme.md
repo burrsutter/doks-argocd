@@ -136,6 +136,10 @@ doctl k8s cluster kubeconfig show bengaluru >> $KUBECONFIG
 ```
 
 ```
+doctl k8s cluster kubeconfig show newyork >> $KUBECONFIG
+```
+
+```
 doctl k8s cluster kubeconfig show toronto >> $KUBECONFIG
 ```
 
@@ -154,7 +158,7 @@ The Spoke clusters have 2 windows/terminals each
 
 ![4 cluster setup](images/iterm2-setup-1.png)
 
-#### A test deployment
+#### Optional: Test vanilla deployment
 Optional: Deploy a test App on the clusters to see if things are behaving normally
 
 ```
