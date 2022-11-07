@@ -9,4 +9,4 @@ spec:
       - name: myapp
         env:
         - name: GREETING
-          value: "Hello2"
+          value: "Hello3"
