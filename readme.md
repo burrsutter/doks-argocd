@@ -19,6 +19,21 @@ https://docs.digitalocean.com/products/kubernetes/how-to/connect-to-cluster/
 brew install doctl
 ```
 
+```
+brew install argocd
+```
+
+```
+argocd version
+argocd: v2.5.9+e5f1194.dirty
+  BuildDate: 2023-01-28T01:35:55Z
+  GitCommit: e5f1194a6de78cc1124179a4c9bb1ae3484fb77d
+  GitTreeState: dirty
+  GoVersion: go1.19.5
+  Compiler: gc
+  Platform: darwin/arm64
+```
+
 
 ```
 doctl auth init
@@ -81,21 +96,21 @@ export KUBECONFIG=~/xKS/doks-argocd/.kube/config-toronto
 Create the clusters, I do this in 4 different terminal sessions, to keep the environments nicely separated
 
 ```
-doctl kubernetes cluster create amsterdam --region ams3 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create amsterdam --version 1.23.14-do.0 --region ams3 --node-pool="name=worker-pool;count=3"
 ```
 
 ```
-doctl kubernetes cluster create bengaluru --region blr1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create bengaluru --version 1.23.14-do.0 --region blr1 --node-pool="name=worker-pool;count=3"
 ```
 
 ```
-doctl kubernetes cluster create newyork --region nyc1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create newyork --version 1.23.14-do.0 --region nyc1 --node-pool="name=worker-pool;count=3"
 ```
 
 Optional - HUB
 
 ```
-doctl kubernetes cluster create toronto --region tor1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create toronto --version 1.23.14-do.0 --region tor1 --node-pool="name=worker-pool;count=3"
 ```
 
 
