@@ -24,16 +24,14 @@ brew install argocd
 ```
 
 ```
-argocd version
-argocd: v2.5.9+e5f1194.dirty
-  BuildDate: 2023-01-28T01:35:55Z
-  GitCommit: e5f1194a6de78cc1124179a4c9bb1ae3484fb77d
+argocd: v2.9.0+9cf0c69.dirty
+  BuildDate: 2023-11-06T15:07:24Z
+  GitCommit: 9cf0c69bbe70393db40e5755e34715f30179ee09
   GitTreeState: dirty
-  GoVersion: go1.19.5
+  GoVersion: go1.21.3
   Compiler: gc
   Platform: darwin/arm64
 ```
-
 
 ```
 doctl auth init
@@ -75,12 +73,14 @@ mkdir .kube
 ```
 
 ```
+export KUBECONFIG=~/xKS/doks-argocd/.kube/config-bengaluru
+```
+
+
+```
 export KUBECONFIG=~/xKS/doks-argocd/.kube/config-amsterdam
 ```
 
-```
-export KUBECONFIG=~/xKS/doks-argocd/.kube/config-bengaluru
-```
 
 ```
 export KUBECONFIG=~/xKS/doks-argocd/.kube/config-newyork
@@ -95,22 +95,27 @@ export KUBECONFIG=~/xKS/doks-argocd/.kube/config-toronto
 
 Create the clusters, I do this in 4 different terminal sessions, to keep the environments nicely separated
 
+version slugs
+
+https://slugs.do-api.dev/
+
 ```
-doctl kubernetes cluster create amsterdam --version 1.23.14-do.0 --region ams3 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create bengaluru --version 1.28.2-do.0 --region blr1 --node-pool="name=worker-pool;count=3"
 ```
 
 ```
-doctl kubernetes cluster create bengaluru --version 1.23.14-do.0 --region blr1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create amsterdam --version 1.28.2-do.0 --region ams3 --node-pool="name=worker-pool;count=3"
 ```
 
+
 ```
-doctl kubernetes cluster create newyork --version 1.23.14-do.0 --region nyc1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create newyork --version 1.28.2-do.0 --region nyc1 --node-pool="name=worker-pool;count=3"
 ```
 
 Optional - HUB
 
 ```
-doctl kubernetes cluster create toronto --version 1.23.14-do.0 --region tor1 --node-pool="name=worker-pool;count=3"
+doctl kubernetes cluster create toronto --version 1.28.2-do.0 --region tor1 --node-pool="name=worker-pool;count=3"
 ```
 
 
@@ -134,10 +139,10 @@ doctl kubernetes cluster list
 
 ```
 ID                                      Name         Region    Version        Auto Upgrade    Status     Node Pools
-d327a00b-43e2-4da3-ba55-64c335480198    toronto      tor1      1.22.8-do.1    false           running    worker-pool
-a8e1d83e-bcfd-4ee7-a166-9d94b7abf75a    newyork      nyc1      1.22.8-do.1    false           running    worker-pool
-953550fa-ef95-4bb6-b6c4-799b50518ec4    bengaluru    blr1      1.22.8-do.1    false           running    worker-pool
-545b45c4-a0e1-4e14-ab74-0ba74bfb7ef5    amsterdam    ams3      1.22.8-do.1    false           running    worker-pool
+341d92ec-4ee3-4daa-9ba7-7e4cf8c65646    toronto      tor1      1.28.2-do.0    false           running    worker-pool
+40097a20-680c-4723-976a-ccfe9898f4ff    newyork      nyc1      1.28.2-do.0    false           running    worker-pool
+d392d6d9-6962-428a-8f57-765f0ae962bc    amsterdam    ams3      1.28.2-do.0    false           running    worker-pool
+115cd3ae-8e74-461f-9131-5f8021946c83    bengaluru    blr1      1.28.2-do.0    false           running    worker-pool
 ```
 
 If needed, overlay the per cluster $KUBECONFIG files
@@ -263,19 +268,21 @@ Also login via the argocd CLI
 argocd login --insecure --grpc-web $ARGOCD_IP  --username admin --password $ARGOCD_PASS
 ```
 
-Using the correct terminal, the correct $KUBECONFIG, add Spoke 1 (Amsterdam)
+Using the correct terminal, the correct $KUBECONFIG, add Spoke 1 (Bengaluru)
+
+```
+kubectl config get-contexts -o name
+argocd cluster add --kubeconfig $KUBECONFIG do-blr1-bengaluru --name bengaluru
+```
+
+
+Using the correct terminal, the correct $KUBECONFIG, add Spoke 2 (Amsterdam)
 
 ```
 kubectl config get-contexts -o name
 argocd cluster add --kubeconfig $KUBECONFIG do-ams3-amsterdam --name amsterdam
 ```
 
-Using the correct terminal, the correct $KUBECONFIG, add Spoke 2 (Bengaluru)
-
-```
-kubectl config get-contexts -o name
-argocd cluster add --kubeconfig $KUBECONFIG do-blr1-bengaluru --name bengaluru
-```
 
 Using the correct terminal, the correct $KUBECONFIG, add Spoke 3  (New York)
 
@@ -308,7 +315,7 @@ On the hub cluster, each imported cluster has a secret.  These secrets become im
 kubectl get secrets -n argocd -l argocd.argoproj.io/secret-type=cluster
 ```
 
-OR
+OR for OpenShift
 
 ```
 kubectl get secrets -n openshift-gitops -l argocd.argoproj.io/secret-type=cluster
@@ -329,6 +336,9 @@ Application is a Pull model into the cluster upon which ArgoCD is installed.
 
 ```
 argocd app create myapp-demo --repo https://github.com/burrsutter/doks-argocd.git --path mystuff/base --dest-server https://kubernetes.default.svc --dest-namespace mystuff
+```
+
+```
 argocd app sync myapp-demo
 ```
 
